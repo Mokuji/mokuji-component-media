@@ -26,6 +26,10 @@ class Images extends \dependencies\BaseModel
   *     - crop_y => (int)
   *     - crop_width => (int)
   *     - crop_height => (int)
+  *     - fill_width => (int)
+  *     - fill_height => (int)
+  *     - fit_width => (int)
+  *     - fit_height => (int)
   *   $options
   *     - disable_sharpen
   *     - download
@@ -45,6 +49,16 @@ class Images extends \dependencies\BaseModel
     //Resize
     if($filters->resize_width->get('int') > 0 || $filters->resize_height->get('int') > 0){
       $url .= "&resize={$filters->resize_width}/{$filters->resize_height}";
+    }
+    
+    //Fit
+    if($filters->fit_width->get('int') > 0 || $filters->fit_height->get('int') > 0){
+      $url .= "&fit={$filters->fit_width}/{$filters->fit_height}";
+    }
+    
+    //Fill
+    if($filters->fill_width->get('int') > 0 || $filters->fill_height->get('int') > 0){
+      $url .= "&fill={$filters->fill_width}/{$filters->fill_height}";
     }
 
     //Crop
