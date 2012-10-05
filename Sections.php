@@ -37,7 +37,7 @@ class Sections extends \dependencies\BaseViews
   protected function image_abs()
   {
     
-    throw new \exception\Deprecated();
+    // throw new \exception\Deprecated();
     
     $filename = tx('Data')->get->file;
 
