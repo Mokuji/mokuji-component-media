@@ -60,7 +60,7 @@ $(function() {
     url : '<?php echo url('?action=media/upload_image', true); ?>',
     flash_swf_url : '<?php echo $plugin; ?>js/plupload.flash.swf',
     silverlight_xap_url : '<?php echo $plugin; ?>js/plupload.silverlight.xap',
-    multi_selection: <?php echo $data->single_file->is_true() ? 'true' : 'false'; ?>,
+    multi_selection: <?php echo $data->single_file->is_true() ? 'false' : 'true'; ?>,
     filters : [
       <?php
       if($image_uploader->filters->is_parent())
