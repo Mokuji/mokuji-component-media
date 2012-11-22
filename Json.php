@@ -21,7 +21,7 @@ class Json extends \dependencies\BaseComponent
         throw new \exception\NotFound('An image with this ID was not found');
       });
     
-    //TODO actually delete the image file and cached versions.
+    #TODO actually delete the image file and cached versions.
     
     $image->delete();
     
