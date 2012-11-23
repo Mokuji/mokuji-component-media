@@ -39,61 +39,121 @@ class Images extends \dependencies\BaseModel
   */
   public function generate_url($filters=array(), $options=array())
   {
-
-    $filters = Data($filters);
-    $options = Data($options);
-
-    //Image ID
-    $url = "?section=media/image&id={$this->id}";
-
-    //Resize
-    if($filters->resize_width->get('int') > 0 || $filters->resize_height->get('int') > 0){
-      $url .= "&resize={$filters->resize_width}/{$filters->resize_height}";
-    }
     
-    //Fit
-    if($filters->fit_width->get('int') > 0 || $filters->fit_height->get('int') > 0){
-      $url .= "&fit={$filters->fit_width}/{$filters->fit_height}";
-    }
+    //Extract raw values.
+    raw($filters, $options);
     
-    //Fill
-    if($filters->fill_width->get('int') > 0 || $filters->fill_height->get('int') > 0){
-      $url .= "&fill={$filters->fill_width}/{$filters->fill_height}";
-    }
-
-    //Crop
-    if($filters->crop_x->get('int') != 0 || $filters->crop_y->get('int') != 0 ||
-      $filters->crop_width->get('int') != 0 || $filters->crop_height->get('int') != 0)
+    //Create a Rectangle to represent this Image.
+    $R = new \dependencies\Rectangle($this->__get('width'), $this->__get('height'));
+    
+    //Image location.
+    $fullname = $this->__get('filename')->get();
+    $dot = strrpos($fullname, '.');
+    $name = substr($fullname, 0, $dot);
+    $ext = substr($fullname, $dot+1);
+    $url = '/site/components/media/uploads/images/'.(empty($filters) ? '' : 'cache/').$name;
+    
+    //Translate a "fit" option to resize parameters.
+    if(array_try($filters, 'fit_width', 0) > 0 || array_try($filters, 'fit_height', 0) > 0)
     {
-
-      $url .= "&crop={$filters->crop_x}/{$filters->crop_y}/".
-              "{$filters->crop_width}/{$filters->crop_height}";
-
-    }
-
-    //Go over the options
-    $options->each(function($option)use(&$url){
-      switch($option->get()){
-        case 'disable_sharpen':
-          $url .= '&disable_sharpen';
-          break;
-        case 'download':
-          $url .= '&download';
-          break;
-        case 'no_cache':
-          $url .= '&no_cache';
-          break;
-        case 'allow_growth':
-          $url .= '&allow_growth';
-          break;
-        case 'disallow_shrink':
-          $url .= '&disallow_shrink';
-          break;
-        default:
-          throw new \exception\InvalidArgument('$options[\''.$option.'\']');
+      
+      //Make it fit.
+      $R->fit(array_try($filters, 'fit_width', 0), array_try($filters, 'fit_height', 0));
+      
+      //Did it resize?
+      if($R->width() !== $this->__get('width')->get('int')
+      || $R->height() !== $this->__get('height')->get('int')){
+        $filters['resize_width'] = $R->width();
+        $filters['resize_height'] = $R->height();
       }
-    });
-
+      
+    }
+    
+    //Translate a "fill" option to resize and crop parameters.
+    elseif(array_try($filters, 'fill_width', 0) > 0 && array_try($filters, 'fill_height', 0) > 0)
+    {
+      
+      //Make it fit.
+      $R->contain($filters['fill_width'], $filters['fill_height'], true);
+      
+      //Did it resize?
+      if($R->width() !== $this->__get('width')->get('int') || $R->height() !== $this->__get('height')->get('int')){
+        $filters['resize_width'] = $R->width();
+        $filters['resize_height'] = $R->height();
+      }
+      
+      //Find out if we need to do a crop.
+      if($R->width() > $filters['fill_width'] || $R->height() > $filters['fill_height']){
+        
+        //See how much needs to be cropped.
+        $hDiff = $R->width() - $filters['fill_width'];
+        $vDiff = $R->height() - $filters['fill_height'];
+        
+        //Based on that, find the coordinates we need to start our crop from.
+        $x = floor($hDiff / 2);
+        $y = floor($vDiff / 2);
+        
+        //Since we already know the width and height, create the crop filter.
+        $filters['crop_x'] = $x;
+        $filters['crop_y'] = $y;
+        $filters['crop_width'] = $filters['fill_width'];
+        $filters['crop_height'] = $filters['fill_height'];
+        if(!in_array('allow_growth', $options)) $options[] = 'allow_growth';
+        
+      }
+      
+    }
+    
+    //Reset the Rectangle used for the above 2 images.
+    $R->set_width($this->__get('width'))->set_height($this->__get('height'));
+    
+    //Resize.
+    if(array_try($filters, 'resize_width', 0) > 0 || array_try($filters, 'resize_height', 0) > 0)
+    {
+      
+      //Strict resize?
+      if(array_try($filters, 'resize_width', 0) > 0 && array_try($filters, 'resize_height', 0) > 0){
+        $R->set_width($filters['resize_width'])->set_height($filters['resize_height'])->round();
+      }
+      
+      //Auto-resize based on width?
+      if(array_try($filters, 'resize_width', 0) > 0){
+        $R->set_width($filters['resize_width'], true)->round();
+      }
+      
+      //Auto-resize based on height?
+      elseif(array_try($filters, 'resize_height', 0) > 0){
+        $R->set_height($filters['resize_height'], true)->round();
+      }
+      
+      //Generate this part of the URL.
+      $url .= "_resize-{$R->width()}-{$R->height()}";
+      
+    }
+    
+    //Crop.
+    if(array_try($filters, 'crop_x', 0) > 0
+    || array_try($filters, 'crop_y', 0) > 0
+    || array_try($filters, 'crop_width', 0) > 0
+    || array_try($filters, 'crop_height', 0) > 0)
+    {
+      
+      $x = array_try($filters, 'crop_x', 0);
+      $y = array_try($filters, 'crop_y', 0);
+      $width = array_try($filters, 'crop_width', 0);
+      $height = array_try($filters, 'crop_height', 0);
+      
+      $width = ($width > 0 ? $width : ($this->__get('width')->get('int') - $x));
+      $height = ($height > 0 ? $height : ($this->__get('height')->get('int') - $y));
+      
+      $url .= "_crop-{$x}-{$y}-{$width}-{$height}";
+      
+    }
+    
+    //Add extension and create query string from options.
+    $url .= ".$ext".(empty($options) ? '' : '?').implode('&', $options);
+    
+    //Return a URL object.
     return url($url, true);
 
   }

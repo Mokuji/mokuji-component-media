@@ -11,6 +11,26 @@ class DBUpdates extends \components\update\classes\BaseDBUpdates
     $component = 'media',
     $updates = array();
   
+  public function install_1_2($dummydata, $forced)
+  {
+    
+    if($forced === true){
+      tx('Sql')->query('DROP TABLE IF EXISTS `#__media_images`');
+    }
+    
+    if(tx('Sql')->execute_query("SHOW TABLES LIKE '#__media_images'")->is_empty()){
+      $this->install_1_1($dummydata, $forced);
+    }
+    
+    tx('Sql')->query('
+      ALTER TABLE `#__media_images`
+      CHANGE COLUMN `id` `id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT FIRST,
+      ADD COLUMN `width` INT(10) UNSIGNED NOT NULL AFTER `filename`,
+      ADD COLUMN `height` INT(10) UNSIGNED NOT NULL AFTER `width`
+    ');
+      
+  }
+  
   public function install_1_1($dummydata, $forced)
   {
     

@@ -5,6 +5,17 @@
   "dbUpdates": true,
   "versions": [
     {
+      "version": "1.2",
+      "date": "2012-11-23",
+      "description": "Een nieuwe methode van het laden van afbeeldingen zorgt voor een veel snellere laad-tijd en mooiere afbeeldings URLs.",
+      "changes": [
+        {
+          "title": "Directe afbeeldingspaden",
+          "description": "Afbeeldingen kunnen direct uit de cache worden opgehaald, in plaats van dat dat verloopt via een PHP script."
+        }
+      ]
+    },
+    {
       "version": "1.1",
       "date": "2012-10-04",
       "description": "Installeerbare versie gemaakt en nieuwe opties bij schalen van afbeeldingen.",
