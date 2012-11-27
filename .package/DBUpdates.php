@@ -9,18 +9,12 @@ class DBUpdates extends \components\update\classes\BaseDBUpdates
   
   protected
     $component = 'media',
-    $updates = array();
+    $updates = array(
+      '1.1' => '1.2'
+    );
   
-  public function install_1_2($dummydata, $forced)
+  public function update_to_1_2($current_version, $forced)
   {
-    
-    if($forced === true){
-      tx('Sql')->query('DROP TABLE IF EXISTS `#__media_images`');
-    }
-    
-    if(tx('Sql')->execute_query("SHOW TABLES LIKE '#__media_images'")->is_empty()){
-      $this->install_1_1($dummydata, $forced);
-    }
     
     tx('Sql')->query('
       ALTER TABLE `#__media_images`
