@@ -10,9 +10,22 @@ class DBUpdates extends \components\update\classes\BaseDBUpdates
   protected
     $component = 'media',
     $updates = array(
-      '1.1' => '1.2'
+      '1.1' => '1.2',
+      '1.2' => '1.3'
     );
-  
+
+  //Add column `filesize` to table #__media_images.  
+  public function update_to_1_3($current_version, $forced)
+  {
+    
+    tx('Sql')->query('
+      ALTER TABLE `#__media_images`
+      ADD COLUMN `filesize` INT(10) NULL AFTER `height`;
+    ');
+      
+  }
+
+  //Add column `file_size` to table #__media_images.  
   public function update_to_1_2($current_version, $forced)
   {
     

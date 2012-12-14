@@ -25,6 +25,7 @@ class Actions extends \dependencies\BaseComponent
 
     // Set memory limit to infinite
     ini_set('memory_limit', '-1');
+    
     // Limit execution time to 5 minutes
     @set_time_limit(5*60);
     
@@ -40,7 +41,7 @@ class Actions extends \dependencies\BaseComponent
     $ext_pos = strrpos($filename, '.');
     $filename_raw = substr($filename, 0, $ext_pos);
     $extension = substr($filename, $ext_pos+1);
-    
+
     // Check the extension is in the whitelist
     if(!in_array(strtolower($extension), $extension_whitelist))
     {
@@ -140,12 +141,18 @@ class Actions extends \dependencies\BaseComponent
     //If this is the last chuck or only chunk.
     if($chunks == 0 || $chunks -1 == $chunk)
     {
+
+      // //Get filesize, width and height.
+      // $width = imagesx(tx('Data')->files->file->tmp_name);
+      // $height = imagesy(tx('Data')->files->file->tmp_name);
+      // $filesize = filesize(tx('Data')->files->file->tmp_name);
+
       //Create unique file name
       do{
         $target_filename = tx('Security')->random_string(64).'.'.$extension;
       }
       while(file_exists($target_dir.DS.$target_filename));
-    
+
       //Move the file to target directory
       if(!rename($tmp_dir.DS.$filename, $target_dir.DS.$target_filename))
       {
@@ -154,11 +161,16 @@ class Actions extends \dependencies\BaseComponent
         
         die('{"jsonrpc" : "2.0", "error" : {"code": 103, "message": "Failed to move uploaded file."}, "id" : null}');
       }
-      
+
+      $info = tx('File')->image()->from_file($target_dir.DS.$target_filename);
+
       //Store image in database
       $image = $this->model('Images')
+        ->name->set($filename)->back()
         ->filename->set($target_filename)->back()
-        ->name->set($filename_raw)->back()
+        ->width->set($info->get_width())->back()
+        ->height->set($info->get_height())->back()
+        ->filesize->set($info->get_filesize())->back()
         ->save();
       
       // Return JSON-RPC response
