@@ -2,7 +2,25 @@
 
 class Helpers extends \dependencies\BaseViews
 {
-
+  
+  public function delete_image($id)
+  {
+    
+    $image = tx('Sql')
+      ->table('media', 'Images')
+      ->pk($id)
+      ->execute_single()
+      
+      ->is('empty', function(){
+        throw new \exception\NotFound('An image with this ID was not found');
+      });
+    
+    #TODO actually delete the image file and cached versions.
+    
+    $image->delete();
+    
+  }
+  
   protected function download_remote_image($data)
   {
     

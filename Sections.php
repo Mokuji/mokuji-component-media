@@ -2,7 +2,32 @@
 
 class Sections extends \dependencies\BaseViews
 {
-
+  
+  protected function image_upload_tmpl()
+  {
+    return array();
+  }
+  
+  protected function image_upload_js($options)
+  {
+    return array(
+      
+      'tmpl' => str_replace(array("\n", "\r", '"'), array(' ', '', '\"'), $this->section('image_upload_tmpl')),
+      
+      'content' => array(
+        'header' => __($this->component, 'Upload images', true),
+        'drop' => __($this->component, 'Drop images here', true),
+        'browse' => __($this->component, 'Browse', true),
+        'upload' => __($this->component, 'Upload', true)
+      ),
+      
+      'chunk_size' => min((int)(ini_get('upload_max_filesize')), (int)(ini_get('post_max_size'))).'mb',
+      'handle_url' => url('?action=media/upload_image', true),
+      'plugin_url' => URL_PLUGINS.'plupload/'
+      
+    );
+  }
+  
   protected function image()
   {
     
@@ -96,7 +121,7 @@ class Sections extends \dependencies\BaseViews
   protected function image_abs()
   {
     
-    // throw new \exception\Deprecated();
+    throw new \exception\Deprecated();
     
   }
 
