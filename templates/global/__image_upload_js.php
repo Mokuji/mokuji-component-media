@@ -15,6 +15,7 @@
     tmpl: $("<?php echo $data->tmpl; ?>"),
     
     //Configuration options.
+    acceptSource: false,
     autoUpload: true,
     drop: true,
     maxFileSize: '10mb',
@@ -116,12 +117,18 @@
    */
   $.fn.txMediaImageUploader = function(options){
     
-    //First check if we selected hidden input fields only.
-    $this = $(this).filter('input[type=hidden]');
-    if($this.size() == 0) return;
+    $this = $(this);
     
     //Process options.
     var options = $.extend(true, {}, defaultOptions, options);
+    
+    //When replacing an image, we can't accept source files.
+    if(options.replaceImage > 0)
+      options.acceptSource = false;
+    
+    //When accepting any source file, override filters to all files.
+    if(options.acceptSource === true)
+      options.filters = [];
     
     //Create ID's.
     var salt = Math.floor(Math.random()*10000)
@@ -140,7 +147,7 @@
       contents: options.contents,
       autoUpload: options.autoUpload
     });
-    $this.after($view);
+    $this.append($view);
     
     //Create plupload instance.
     var uploader = new plupload.Uploader({
@@ -158,7 +165,11 @@
       drop_element: (options.drop ? ids.drop : null),
       max_file_size: options.maxFileSize,
       multi_selection: !options.singleFile,
-      filters: options.filters
+      filters: options.filters,
+      headers: {
+        "x-txmedia-accept-source": options.acceptSource ? '1' : '0',
+        "x-txmedia-replace-image": options.replaceImage ? options.replaceImage : 0
+      }
       
     });
     
@@ -190,16 +201,16 @@
       up.refresh();
       
       //If single file mode, remove all but the last file.
-      if(options.singleFile)
-      {
+      // if(options.singleFile)
+      // {
         
-        //Single file mode, remove all but the last file.
-        plupload.each(files, function(file){
-          if(up.files.length > 1)
-            up.removeFile(file);
-        });
+      //   //Single file mode, remove all but the last file.
+      //   plupload.each(files, function(file){
+      //     if(up.files.length > 1)
+      //       up.removeFile(file);
+      //   });
         
-      }
+      // }
       
       //Autostart if wanted
       if(options.autoUpload) up.start();

@@ -12,6 +12,13 @@ class Images extends \dependencies\BaseModel
     return PATH_COMPONENTS.DS.'media'.DS.'uploads'.DS.'images'.DS.$this->filename;
     
   }
+  
+  public function get_source_file()
+  {
+    return tx('Sql')->table('media', 'Files')
+      ->pk($this->source_file_id)
+      ->execute_single();
+  }
 
   /**
   * Generates a url for an image with the supplied arguments.
@@ -156,6 +163,21 @@ class Images extends \dependencies\BaseModel
     //Return a URL object.
     return url($url, true);
 
+  }
+  
+  public function delete()
+  {
+    
+    //Delete the image files.
+    tx('Component')->helpers('media')->_call('delete_image_file', array($this->filename));
+    
+    //Delete the source file if applicable.
+    $this->source_file->not('empty', function($source){
+      $source->delete();
+    });
+    
+    return parent::delete();
+    
   }
 
 }

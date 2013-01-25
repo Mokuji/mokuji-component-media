@@ -15,4 +15,17 @@ class Json extends \dependencies\BaseComponent
     
   }
   
+  public function get_generate_url($data, $params)
+  {
+    
+    return array(
+      'url' => $this->table('Images')
+        ->pk($params[0])
+        ->execute_single()
+        ->generate_url($data->filters->as_array(), $data->options->as_array())
+        ->output
+    );
+    
+  }
+  
 }

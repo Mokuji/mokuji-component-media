@@ -15,9 +15,62 @@ class Helpers extends \dependencies\BaseViews
         throw new \exception\NotFound('An image with this ID was not found');
       });
     
-    #TODO actually delete the image file and cached versions.
+    //Actually delete the image file and cached versions.
+    $this->delete_image_file($image->filename);
     
+    //Delete from the database.
     $image->delete();
+    
+  }
+  
+  public function delete_image_file($filename)
+  {
+    
+    //Clean the filename for security reasons.
+    $filename = preg_replace('/[^\w\._]+/', '', $filename);
+    
+    //Get extension and filename.
+    $ext_pos = strrpos($filename, '.');
+    $filename_raw = substr($filename, 0, $ext_pos);
+    $extension = substr($filename, $ext_pos+1);
+    
+    //Find target directory.
+    $dir = PATH_COMPONENTS.DS.$this->component.DS.'uploads'.DS.'images'.DS;
+    
+    //See if the original is found here.
+    if(!is_file($dir.$filename))
+      throw new \exception\NotFound('The original image was not found.');
+    
+    //Delete the original file.
+    @unlink($dir.$filename);
+    
+    //Find all of it's buddies and kill 'em dead. >:3
+    foreach(glob($dir.'cache'.DS.$filename_raw.'*.'.$extension) as $buddy){
+      @unlink($buddy);
+    }
+    
+  }
+  
+  public function delete_file($filename)
+  {
+    
+    //Clean the filename for security reasons.
+    $filename = preg_replace('/[^\w\._]+/', '', $filename);
+    
+    //Get extension and filename.
+    $ext_pos = strrpos($filename, '.');
+    $filename_raw = substr($filename, 0, $ext_pos);
+    $extension = substr($filename, $ext_pos+1);
+    
+    //Find target directory.
+    $dir = PATH_COMPONENTS.DS.$this->component.DS.'uploads'.DS.'files'.DS;
+    
+    //See if the original is found here.
+    if(!is_file($dir.$filename))
+      throw new \exception\NotFound('The original file was not found.');
+    
+    //Delete the original file.
+    @unlink($dir.$filename);
     
   }
   

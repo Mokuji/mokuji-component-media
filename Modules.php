@@ -70,13 +70,13 @@ class Modules extends \dependencies\BaseViews
     
     //Write to output buffer so it only gets included once.
     tx('Ob')->script('media_image_upload_js');
-
+    
     //Plupload plugin.
     echo load_plugin('plupload');
-
+    
     //The image upload script (section).
     ?><script type="text/javascript" src="<?php echo url('?section=media/image_upload_js',1); ?>"></script><?php
-
+    
     //End of output buffer section.
     tx('Ob')->end();
     

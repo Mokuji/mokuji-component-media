@@ -5,9 +5,21 @@
   "dbUpdates": true,
   "versions": [
     {
+      "version": "2.0",
+      "date": "2013-01-25",
+      "description": "Nieuwe afbeelding functies",
+      "changes": [
+        {
+          "title": "Preview afbeeldingen",
+          "description": "<p>Voor deze update was het niet mogelijk om bijvoorbeeld Photoshop-, TIFF- of Illustrator-bestanden te uploaden in de afbeeldingen uploader.</p><p>Vanaf nu is het mogelijk om elk type bestand als zijnde een afbeelding te uploaden en later een tweede afbeelding daaraan te koppelen als preview afbeelding mocht het niet als afbeelding herkend worden.</p><p>Op deze manier is het bijvoorbeeld ook mogelijk om een Zip-bestand te uploaden in een gallerij en daar een voorbeeld in JPEG vorm aan te koppelen. Maar ook wanneer de server geen ondersteuning heeft voor TIFF-bestanden kan dit van pas komen.</p><p>"
+        }
+      ]
+    },
+    {
       "version": "1.3",
       "date": "2012-11-30",
-      "description": "In de afbeeldingen-database kunnen nu ook de bestandsgroottes worden opgeslagen."
+      "description": "In de afbeeldingen-database kunnen nu ook de bestandsgroottes worden opgeslagen.",
+      "changes": []
     },
     {
       "version": "1.2",

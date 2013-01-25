@@ -11,17 +11,22 @@ class Actions extends \dependencies\BaseComponent
       'jpg', 'jpeg', 'png', 'gif'
     );
     
+    // Do we accept all files?
+    $http_headers = apache_request_headers();
+    $accept_any_source_file = isset($http_headers['x-txmedia-accept-source']) ? $http_headers['x-txmedia-accept-source'] == 1 : false;
+    $is_source_file = false;
+    $replace_image = isset($http_headers['x-txmedia-replace-image']) ? intval($http_headers['x-txmedia-replace-image']) : false;
+    
+    //Output info about this upload.
+    tx('Logging')->log('Media', 'Image upload handler', 'Accept any? '.($accept_any_source_file ? 'Yes.' : 'No.'));
+    tx('Logging')->log('Media', 'Image upload handler', 'Replacing? '.($replace_image ? 'Yes '.$replace_image.'.' : 'No.'));
+    
     // HTTP headers for no cache etc
     header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
     header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
     header("Cache-Control: no-store, no-cache, must-revalidate");
     header("Cache-Control: post-check=0, pre-check=0", false);
     header("Pragma: no-cache");
-    
-    // Settings
-    $upload_dir = PATH_COMPONENTS.DS.$this->component.DS.'uploads'.DS;
-    $target_dir = $upload_dir.'images'.DS;
-    $tmp_dir = $target_dir.'inbound'.DS;
 
     // Set memory limit to infinite
     ini_set('memory_limit', '-1');
@@ -45,8 +50,21 @@ class Actions extends \dependencies\BaseComponent
     // Check the extension is in the whitelist
     if(!in_array(strtolower($extension), $extension_whitelist))
     {
-      die('{"jsonrpc" : "2.0", "error" : {"code": 104, "message": "Invalid file extention \''.$extension.'\'. Valid extensions are: '.implode(', ', $extension_whitelist).'."}, "id" : "id"}');
+      
+      if($accept_any_source_file){
+        $is_source_file = true;
+      }
+      
+      else{
+        die('{"jsonrpc" : "2.0", "error" : {"code": 104, "message": "Invalid file extention \''.$extension.'\'. Valid extensions are: '.implode(', ', $extension_whitelist).'."}, "id" : "id"}');
+      }
+      
     }
+    
+    // Find target directory
+    $upload_dir = PATH_COMPONENTS.DS.$this->component.DS.'uploads'.DS;
+    $target_dir = $upload_dir.($is_source_file ? 'files' : 'images').DS;
+    $tmp_dir = $target_dir.'inbound'.DS;
     
     // Create target dirs
     if (!file_exists($upload_dir)){
@@ -146,35 +164,115 @@ class Actions extends \dependencies\BaseComponent
       // $width = imagesx(tx('Data')->files->file->tmp_name);
       // $height = imagesy(tx('Data')->files->file->tmp_name);
       // $filesize = filesize(tx('Data')->files->file->tmp_name);
-
+      
       //Create unique file name
       do{
         $target_filename = tx('Security')->random_string(64).'.'.$extension;
       }
-      while(file_exists($target_dir.DS.$target_filename));
+      while(file_exists($target_dir.$target_filename));
 
       //Move the file to target directory
-      if(!rename($tmp_dir.DS.$filename, $target_dir.DS.$target_filename))
+      if(!rename($tmp_dir.DS.$filename, $target_dir.$target_filename))
       {
         //If unsuccesful try to delete the tmp file not to create a mess.
-        @unlink($tmp_dir.DS.$filename);
+        @unlink($tmp_dir.$filename);
         
         die('{"jsonrpc" : "2.0", "error" : {"code": 103, "message": "Failed to move uploaded file."}, "id" : null}');
       }
-
-      $info = tx('File')->image()->from_file($target_dir.DS.$target_filename);
-
-      //Store image in database
-      $image = $this->model('Images')
-        ->name->set($filename)->back()
-        ->filename->set($target_filename)->back()
-        ->width->set($info->get_width())->back()
-        ->height->set($info->get_height())->back()
-        ->filesize->set($info->get_filesize())->back()
-        ->save();
+      
+      // Store information in the database
+      
+      if($is_source_file)
+      {
+        
+        $info = tx('File')->file()->from_file($target_dir.$target_filename);
+        
+        //Store file in database
+        $file = $this->model('Files')
+          ->set(array(
+            'name' => $filename,
+            'filename' => $target_filename,
+            'filesize' => $info->get_filesize()
+          ))
+          ->save();
+        
+        //Find out where to get default preview images.
+        $preview_file_source_dir = PATH_COMPONENTS.DS.$this->component.DS.'includes'.DS.'icons'.DS;
+        $preview_file_dir = $upload_dir.'images'.DS;
+        if (!file_exists($preview_file_dir)){
+          @mkdir($preview_file_dir);
+        }
+        
+        #TODO: Specify this based on the source file type.
+        $preview_file = 'x_default.png';
+        
+        //If the preview icon is not in the uploaded images folder, copy it from the includes folder.
+        //This because of a directory traversal restriction in the filename database field.
+        if(!is_file($preview_file_dir.$preview_file))
+          if(!@copy($preview_file_source_dir.$preview_file, $preview_file_dir.$preview_file))
+            die('{"jsonrpc" : "2.0", "error" : {"code": 105, "message": "Could not create preview image for file based on \''.$preview_file.'\'."}, "id" : null}');
+        
+        
+        $info = tx('File')->image()->from_file($preview_file_dir.$preview_file);
+        
+        //Store image in database
+        $image = $this->model('Images')
+          ->set(array(
+            'name' => $filename,
+            'filename' => $preview_file,
+            'width' => $info->get_width(),
+            'height' => $info->get_height(),
+            'filesize' => $info->get_filesize(),
+            'source_file_id' => $file->id
+          ))
+          ->save();
+        
+      }
+      
+      // When not a source file...
+      else
+      {
+        
+        //Possibly replace another image?
+        if($replace_image){
+          
+          $image = $this->table('Images')
+            ->pk($replace_image)
+            ->execute_single();
+          
+          //First delete the old image and it's cache though.
+          //But only if it's not one of the placeholder images.
+          if(substr($image->filename->get(), 0, 2) !== 'x_')
+            tx('Component')->helpers('media')->call('delete_image_file', array($image->filename));
+          
+        }
+        
+        else{
+          
+          //Only when uploading a fresh image should this be set.
+          $image = $this->model('Images')
+            ->set(array(
+              'name' => $filename
+            ));
+            
+        }
+        
+        //Store image info in database
+        $info = tx('File')->image()->from_file($target_dir.$target_filename);
+        $image
+          ->merge(array(
+            'filename' => $target_filename,
+            'width' => $info->get_width(),
+            'height' => $info->get_height(),
+            'filesize' => $info->get_filesize()
+          ))
+          ->save();
+        
+      }
       
       // Return JSON-RPC response
       die('{"jsonrpc" : "2.0", "result" : '.$image->id.', "id" : null}');
+      
     }
     
     else{
