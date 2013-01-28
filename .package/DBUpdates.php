@@ -40,7 +40,7 @@ class DBUpdates extends \components\update\classes\BaseDBUpdates
       
       tx('Sql')->query('
         ALTER TABLE `#__media_images`
-          ADD `source_file_id` INT UNSIGNED NULL DEFAULT NULL `filename`
+          ADD `source_file_id` INT UNSIGNED NULL DEFAULT NULL AFTER `filename`
       ');
     
     }catch(\exception\Sql $ex){
