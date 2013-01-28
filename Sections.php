@@ -117,7 +117,31 @@ class Sections extends \dependencies\BaseViews
     );
     
   }
-
+  
+  protected function file($data)
+  {
+    
+    //File info from DB.
+    $file_info = tx('Sql')->table('media', 'Files')
+      ->pk(tx('Data')->get->id)
+      ->execute_single()
+      ->is('empty', function(){
+        throw new \exception\EmptyResult("Supplied file id was not found. ".tx('Data')->get->id->dump());
+      });
+    
+    //File handle.
+    $file = tx('File')->file()
+      ->from_file($file_info->get_abs_filename());
+    
+    //See if we need to output download headers.
+    if(tx('Data')->get->download->is_set())
+      $file->download(array('as' => tx('Data')->get->as->otherwise(null)));
+    
+    //Otherwise, output the file contents.
+    else $file->output();
+      
+  }
+  
   protected function image_abs()
   {
     

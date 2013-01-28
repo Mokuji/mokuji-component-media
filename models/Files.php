@@ -6,6 +6,13 @@ class Files extends \dependencies\BaseModel
   protected static
     $table_name = 'media_files';
   
+  public function get_abs_filename()
+  {
+    
+    return PATH_COMPONENTS.DS.'media'.DS.'uploads'.DS.'files'.DS.$this->filename;
+    
+  }
+  
   public function delete()
   {
     

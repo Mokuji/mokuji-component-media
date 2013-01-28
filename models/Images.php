@@ -40,6 +40,7 @@ class Images extends \dependencies\BaseModel
   *   $options
   *     - disable_sharpen
   *     - download
+  *     - no_source_file
   *     - no_cache
   *     - allow_growth
   *     - disallow_shrink
@@ -49,6 +50,19 @@ class Images extends \dependencies\BaseModel
     
     //Extract raw values.
     raw($filters, $options);
+    
+    //Downloading original has an exception, because it should not go through .htaccess structure.
+    if(empty($filters) && isset($options['download']) && $options['download'] === true){
+      
+      //In the case of downloading the original, it's possible a source file is defined.
+      //Use that instead of the image file, unless it's denied by the options.
+      if($this->source_file_id->is_set() && !(isset($options['no_source_file']) && $options['no_source_file'] === true))
+        return url('?section=media/file&id='.$this->source_file_id.'&download=1', true);
+      
+      //Otherwise, simply download this image's original.
+      return url('?section=media/image&id='.$this->id.'&download=1', true);
+      
+    }
     
     //Create a Rectangle to represent this Image.
     $R = new \dependencies\Rectangle($this->__get('width'), $this->__get('height'));
