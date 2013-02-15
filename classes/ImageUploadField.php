@@ -34,7 +34,7 @@ class ImageUploadField extends BaseFormField
       <div class="preview-image-background">
         <img class="preview-image"
             <?php if($has_image){ ?>
-              src="<?php echo $image->generate_url(filters); ?>"
+              src="<?php echo $image->generate_url($filters); ?>"
             <?php } ?>
           />
       </div>
