@@ -15,12 +15,8 @@
 .plupload-container .buttonHolder{
   text-align:right;
 }
-.plupload-container .buttonHolder a{
-  background:#999;
-  color:#fff;
-  padding:5px;
+.plupload-container .buttonHolder button{
   margin:5px 0px 5px 5px;
-  line-height:2em;
 }
 .plupload-container .filelist{
   position:absolute;
@@ -44,3 +40,37 @@
   background:#e77;
   color:#fff;
 }
+
+/* Image upload field has a very minimal view */
+.image-upload-field{
+  position:relative;
+  height:240px;
+  margin-bottom:10px;
+}
+  .image-upload-field .preview-image{
+    display:block;
+    width:auto;
+    min-width:auto;
+    max-width:none;
+    height:181px;
+  }
+  .image-upload-field .preview-image-background{
+    height:181px;
+    overflow:hidden;
+  }
+  .image-upload-field .plupload-container{
+    position:absolute;
+    top:25px;
+    width:100%;
+  }
+  .image-upload-field .drop{
+    position:relative;
+    border:none;
+    background:none;
+    z-index:10;
+    height:181px;
+  }
+  .image-upload-field .drag-here,
+  .image-upload-field .header{
+    display:none;
+  }

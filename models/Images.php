@@ -1,11 +1,19 @@
 <?php namespace components\media\models; if(!defined('TX')) die('No direct access.');
 
+tx('Component')->load('media', 'classes\\ImageUploadField', false);
+
+use \dependencies\RelationType;
+
 class Images extends \dependencies\BaseModel
 {
-
+  
   protected static
-    $table_name = 'media_images';
-
+    $table_name = 'media_images',
+    
+    $relation_preferences = array(
+      RelationType::ForeignKey => '\\components\\media\\classes\\ImageUploadField'
+    );
+  
   public function get_abs_filename()
   {
     
