@@ -148,12 +148,13 @@
       autoUpload: options.autoUpload
     });
     $this.append($view);
-    
+
     //Create plupload instance.
+    var ie_version = ($.browser.msie ? parseInt($.browser.version, 10) : false);
     var uploader = new plupload.Uploader({
       
       //Fixed settings.
-      runtimes: 'html5,flash,html4',
+      runtimes: (ie_version == 9 ? 'html5,html4' : 'html5,flash,html4'),
       browse_button: ids.browse,
       container: ids.main,
       chunk_size: settings.chunkSize,
