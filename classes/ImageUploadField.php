@@ -16,7 +16,7 @@ class ImageUploadField extends BaseFormField
     parent::render($options);
     
     //Include uploading module.
-    echo tx('Component')->modules('media')->get_html('image_upload_module');
+    tx('Component')->modules('media')->get_html('image_upload_module');
     
     //Get some values up front.
     $field_id = uniqid($this->form_id.'_image_');
@@ -30,7 +30,6 @@ class ImageUploadField extends BaseFormField
     ?>
     <div id="<?php echo $field_id; ?>" class="ctrlHolder image-upload-field">
       <label><?php __($this->model->component(), $this->title); ?></label>
-      <input type="hidden" class="hidden-image-id" name="<?php echo $this->column_name; ?>" value="<?php echo $value; ?>" />
       <div class="preview-image-background">
         <img class="preview-image"
             <?php if($has_image){ ?>
@@ -38,6 +37,7 @@ class ImageUploadField extends BaseFormField
             <?php } ?>
           />
       </div>
+      <input type="hidden" class="hidden-image-id" name="<?php echo $this->column_name; ?>" value="<?php echo $value; ?>" />
     </div>
     
     <script type="text/javascript">
@@ -65,7 +65,7 @@ class ImageUploadField extends BaseFormField
         }
       };
       
-      //Set the options externally so it can self-update.
+      //Initialize the uploaders.
       $imageField.txMediaImageUploader(options);
       
     });
