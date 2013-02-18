@@ -131,7 +131,8 @@
       options.filters = [];
     
     //Create ID's.
-    var salt = Math.floor(Math.random()*10000)
+    var date = new Date
+      , salt = Math.floor(Math.random()*100000)
       , ids = {
       'main'      : salt+'-main',
       'header'    : salt+'-header',
