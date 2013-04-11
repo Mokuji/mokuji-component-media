@@ -7,8 +7,8 @@
       <div class="drag-here">${contents.drop}</div>
     </div>
     <div class="buttonHolder">
-      <button id="${ids.browse}" class="browse" href="#">${contents.browse}</button>
-      {{if !autoUpload}}<button id="${ids.upload}" class="upload" href="#">${contents.upload}</button>{{/if}}
+      <a id="${ids.browse}" class="button gray browse" href="#">${contents.browse}</a>
+      {{if !autoUpload}}<a id="${ids.upload}" class="button gray upload" href="#">${contents.upload}</a>{{/if}}
     </div>
   </div>
 </script>
