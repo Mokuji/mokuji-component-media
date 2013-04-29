@@ -11,7 +11,7 @@ class Json extends \dependencies\BaseComponent
   protected function delete_image($data, $params)
   {
     
-    $this->helper('delete_image', $params);
+    $this->helper('delete_image', $params[0]);
     
   }
   

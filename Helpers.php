@@ -16,9 +16,7 @@ class Helpers extends \dependencies\BaseViews
       });
     
     //Actually delete the image file and cached versions.
-    $this->delete_image_file($image->filename);
-    
-    //Delete from the database.
+    //And delete from the database.
     $image->delete();
     
   }
