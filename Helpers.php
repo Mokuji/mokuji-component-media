@@ -3,6 +3,11 @@
 class Helpers extends \dependencies\BaseViews
 {
   
+  protected
+    $default_permission = 2,
+    $permissions = array(
+    );
+  
   public function delete_image($id)
   {
     

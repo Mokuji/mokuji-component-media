@@ -3,6 +3,11 @@
 class Actions extends \dependencies\BaseComponent
 {
   
+  protected
+    $default_permission = 2,
+    $permissions = array(
+    );
+  
   protected function upload_image()
   {
     
@@ -295,9 +300,7 @@ class Actions extends \dependencies\BaseComponent
       'doc',
       'docx',
       'xls',
-      'ods',
-      'jpg',
-      'jpeg'
+      'ods'
     );
     
     // Do we accept all files?

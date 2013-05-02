@@ -4,8 +4,9 @@ class Json extends \dependencies\BaseComponent
 {
   
   protected
+    $default_permission = 2,
     $permissions = array(
-      'delete_image' => 2
+      'get_generate_url' => 0
     );
   
   protected function delete_image($data, $params)

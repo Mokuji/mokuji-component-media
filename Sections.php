@@ -3,6 +3,17 @@
 class Sections extends \dependencies\BaseViews
 {
   
+  protected
+    $default_permission = 2,
+    $permissions = array(
+      'image_upload_tmpl' => 0,
+      'file_upload_tmpl' => 0,
+      'image_upload_js' => 0,
+      'file_upload_js' => 0,
+      'image' => 0,
+      'file' => 0
+    );
+  
   protected function image_upload_tmpl()
   {
     return array();
@@ -167,11 +178,4 @@ class Sections extends \dependencies\BaseViews
       
   }
   
-  protected function image_abs()
-  {
-    
-    throw new \exception\Deprecated();
-    
-  }
-
 }

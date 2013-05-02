@@ -2,7 +2,15 @@
 
 class Modules extends \dependencies\BaseViews
 {
-
+  
+  protected
+    $default_permission = 2,
+    $permissions = array(
+      'image_uploader' => 0,
+      'image_upload_module' => 0,
+      'file_upload_module' => 0
+    );
+  
   protected function image_uploader($options)
   {
     
