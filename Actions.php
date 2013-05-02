@@ -6,6 +6,7 @@ class Actions extends \dependencies\BaseComponent
   protected
     $default_permission = 2,
     $permissions = array(
+      //This needs to be edited, but image permissions should be checked first.
     );
   
   protected function upload_image()
@@ -302,13 +303,6 @@ class Actions extends \dependencies\BaseComponent
       'xls',
       'ods'
     );
-    
-    // Do we accept all files?
-    $http_headers = apache_request_headers();
-    $accept_any_source_file = isset($http_headers['x-txmedia-accept-source']) ? $http_headers['x-txmedia-accept-source'] == 1 : false;
-    
-    //Output info about this upload.
-    tx('Logging')->log('Media', 'File upload handler', 'Accept any? '.($accept_any_source_file ? 'Yes.' : 'No.'));
     
     // HTTP headers for no cache etc
     header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
