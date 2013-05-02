@@ -18,7 +18,7 @@
     acceptSource: false,
     autoUpload: true,
     drop: true,
-    maxFileSize: '10mb',
+    maxFileSize: '30mb',
     singleFile: false,
     filters: [{title : "<?php __($names->component, 'Files'); ?>", extensions : "jpg,jpeg,gif,png,pdf,ods,doc,docx,xls,odt"}],
     
@@ -147,7 +147,7 @@
     var uploader = new plupload.Uploader({
       
       //Fixed settings.
-      runtimes: (ie_version == 9 ? 'html5,html4' : 'html5,flash,html4'),
+      runtimes: (ie_version <= 9 ? 'html4' : 'html5,flash,html4'),
       browse_button: ids.browse,
       container: ids.main,
       chunk_size: settings.chunkSize,
