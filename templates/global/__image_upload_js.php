@@ -155,7 +155,7 @@
     var uploader = new plupload.Uploader({
       
       //Fixed settings.
-      runtimes: (ie_version <= 9 ? 'html4' : 'html5,flash,html4'),
+      runtimes: (ie_version && ie_version <= 9 ? 'html4' : 'html5,flash,html4'),
       browse_button: ids.browse,
       container: ids.main,
       chunk_size: settings.chunkSize,

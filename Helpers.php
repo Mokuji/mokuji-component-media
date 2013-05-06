@@ -37,6 +37,10 @@ class Helpers extends \dependencies\BaseViews
     $filename_raw = substr($filename, 0, $ext_pos);
     $extension = substr($filename, $ext_pos+1);
     
+    //Don't delete the default icon.
+    if($filename_raw == 'x_default')
+      return;
+    
     //Find target directory.
     $dir = PATH_COMPONENTS.DS.$this->component.DS.'uploads'.DS.'images'.DS;
     
