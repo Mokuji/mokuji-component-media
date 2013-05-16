@@ -3,10 +3,33 @@
 class Helpers extends \dependencies\BaseViews
 {
   
-  protected
-    $default_permission = 2,
-    $permissions = array(
-    );
+  /**
+   * Clears the cache of static links.
+   * @return void
+   */
+  public function delete_image_links($filename)
+  {
+    
+    //Clean the filename for security reasons.
+    $filename = preg_replace('/[^\w\._]+/', '', $filename);
+    
+    //Get extension and filename.
+    $ext_pos = strrpos($filename, '.');
+    $filename_raw = substr($filename, 0, $ext_pos);
+    $extension = substr($filename, $ext_pos+1);
+    
+    //Find target directory.
+    $dir = PATH_COMPONENTS.DS.$this->component.DS.'links'.DS.'images'.DS;
+    
+    //Delete the original file link.
+    @unlink($dir.'static-'.$filename);
+    
+    //Find all of it's buddies and kill 'em dead. >:3
+    foreach(glob($dir.'static-cache'.DS.$filename_raw.'*.'.$extension) as $buddy){
+      @unlink($buddy);
+    }
+    
+  }
   
   public function delete_image($id)
   {

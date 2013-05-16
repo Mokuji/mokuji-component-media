@@ -1,4 +1,1 @@
-RewriteEngine On
-
-RewriteCond %{DOCUMENT_ROOT}%{REQUEST_URI} !-f
-RewriteRule images/(.*) ../../../../index.php?%{QUERY_STRING}&section=media/image&path=$1 [L,QSA]
+DENY FROM ALL

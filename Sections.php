@@ -6,6 +6,8 @@ class Sections extends \dependencies\BaseViews
   protected
     $default_permission = 2,
     $permissions = array(
+      'link_image_static' => 0,
+      'link_image_dynamic' => 0,
       'image_upload_tmpl' => 0,
       'file_upload_tmpl' => 0,
       'image_upload_js' => 0,
@@ -13,6 +15,58 @@ class Sections extends \dependencies\BaseViews
       'image' => 0,
       'file' => 0
     );
+  
+  public function link_image_static()
+  {
+    
+    $path = tx('Data')->get->path->get();
+    
+    //We're here because .htaccess rewrote. No symlink exists yet for this image.
+    //Check if we have permission to make a symlink.
+    if(tx('Data')->session->media->image_symlink_permission->{$path}->get() !== tx('Session')->id){
+      tx('Logging')->log('Media', 'Static image', 'No permissions to create link '.$path);
+      set_status_header(403, 'Access denied');
+      exit;
+    }
+    
+    //Output image with the flag to create a symlink.
+    echo $this->section('image', array('create_static_symlink'=>true));
+    tx('Data')->session->media->image_symlink_permission->{$path}->un_set();
+    exit;
+    
+  }
+  
+  public function link_image_dynamic()
+  {
+    
+    $path = tx('Data')->get->path->get();
+    tx('Logging')->log('Media', 'Dynamic image', $path);
+    
+    //Does the path start with our session ID?
+    $sid = tx('Session')->id;
+    if(strpos($path, $sid.'-') === 0){
+      
+      //Strip it from the path.
+      $path = substr($path, strlen($sid)+1);
+      
+    }
+    
+    //Deny access if it doesn't.
+    else{
+      set_status_header(403, 'Access denied');
+      exit;
+    }
+    
+    if(tx('Data')->session->media->image_access->{$path}->get() !== tx('Session')->id){
+      set_status_header(403, 'Access denied');
+      exit;
+    }
+    
+    tx('Data')->get->merge(array('path'=>$path));
+    echo $this->section('image');
+    exit;
+    
+  }
   
   protected function image_upload_tmpl()
   {
@@ -64,8 +118,11 @@ class Sections extends \dependencies\BaseViews
     );
   }
   
-  protected function image()
+  protected function image($options)
   {
+    
+    //Since we will output an image. Switch to read-only mode for the session to prevent bottlenecks.
+    tx('Session')->close();
     
     //Has a direct path been given? (usually by .htaccess)
     if(tx('Data')->get->path->is_set())
@@ -135,10 +192,24 @@ class Sections extends \dependencies\BaseViews
       
       $resize = tx('Data')->get->resize->split('/');
       $crop = tx('Data')->get->crop->split('/');
+      $filename = $image->filename;
       $path = $image->get_abs_filename();
       
     }
     
+    //See if we should create a public symlink to the file.
+    if($options->create_static_symlink->is_true()){
+      
+      $target = PATH_COMPONENTS.DS.'media'.DS.'uploads'.DS.'images'.DS.$p;
+      $link = PATH_COMPONENTS.DS.'media'.DS.'links'.DS.'images'.DS.'static-'.$p;
+      
+      //Ensure the folder for the link and the symlink itself are present.
+      @mkdir(dirname($link), 0777, true);
+      if(!@symlink($target, $link)){
+        tx('Logging')->log('Media', 'Static symlink', 'Creation failed for: '.$target.' -> '.$path);
+      }
+      
+    }
     
     return array(
       'download' => tx('Data')->get->download->is_set(),

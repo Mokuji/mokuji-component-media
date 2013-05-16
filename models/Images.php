@@ -80,7 +80,7 @@ class Images extends \dependencies\BaseModel
     $dot = strrpos($fullname, '.');
     $name = substr($fullname, 0, $dot);
     $ext = substr($fullname, $dot+1);
-    $url = '/site/components/media/uploads/images/'.(empty($filters) ? '' : 'cache/').$name;
+    $generated_name = (empty($filters) ? '' : 'cache/').$name;
     
     //Translate a "fit" option to resize parameters.
     if(array_try($filters, 'fit_width', 0) > 0 || array_try($filters, 'fit_height', 0) > 0)
@@ -156,7 +156,7 @@ class Images extends \dependencies\BaseModel
       }
       
       //Generate this part of the URL.
-      $url .= "_resize-{$R->width()}-{$R->height()}";
+      $generated_name .= "_resize-{$R->width()}-{$R->height()}";
       
     }
     
@@ -175,12 +175,27 @@ class Images extends \dependencies\BaseModel
       $width = ($width > 0 ? $width : ($this->__get('width')->get('int') - $x));
       $height = ($height > 0 ? $height : ($this->__get('height')->get('int') - $y));
       
-      $url .= "_crop-{$x}-{$y}-{$width}-{$height}";
+      $generated_name .= "_crop-{$x}-{$y}-{$width}-{$height}";
       
     }
     
     //Add extension and create query string from options.
-    $url .= ".$ext".(empty($options) ? '' : '?').implode('&', $options);
+    $generated_name .= ".$ext";
+    $public = $this->is_public->get('boolean');
+    
+    //Create versions of the name.
+    $url = '/site/components/media/links/images/'.
+      ($public ? 'static' : 'dynamic-'.tx('Session')->id).'-'.$generated_name.
+      (empty($options) ? '' : '?').implode('&', $options);
+      
+    $link = PATH_COMPONENTS.DS.'media'.DS.'links'.DS.'images'.DS.
+      ($public ? 'static' : 'dynamic-'.tx('Session')->id).'-'.$generated_name;
+    
+    if(!$public){
+      tx('Data')->session->media->image_access->{$generated_name}->set(tx('Session')->id);
+    }elseif($public && !is_link($link)){
+      tx('Data')->session->media->image_symlink_permission->{$generated_name}->set(tx('Session')->id);
+    }
     
     //Return a URL object.
     return url($url, true);
@@ -190,7 +205,8 @@ class Images extends \dependencies\BaseModel
   public function delete()
   {
     
-    //Delete the image files.
+    //Delete the image links and files.
+    tx('Component')->helpers('media')->_call('delete_image_links', array($this->filename));
     tx('Component')->helpers('media')->_call('delete_image_file', array($this->filename));
     
     //Delete the source file if applicable.

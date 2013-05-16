@@ -12,8 +12,50 @@ class DBUpdates extends \components\update\classes\BaseDBUpdates
     $updates = array(
       '1.1' => '1.2',
       '1.2' => '1.3',
-      '1.3' => '2.0'
+      '1.3' => '2.0',
+      '2.0' => '2.1'
     );
+  
+  public function update_to_2_1($current_version, $forced)
+  {
+    
+    try{
+      
+      tx('Sql')->query('
+        ALTER TABLE `#__media_images`
+          ADD `is_public` BIT(1) NOT NULL DEFAULT b\'1\'
+      ');
+      tx('Sql')->query('
+        ALTER TABLE `#__media_files`
+          ADD `is_public` BIT(1) NOT NULL DEFAULT b\'1\'
+      ');
+      
+    }catch(\exception\Sql $ex){
+      //When it's not forced, this is a problem.
+      //But when forcing, ignore this.
+      if(!$forced) throw $ex;
+    }
+    
+    //Queue self-deployment with CMS component.
+    $this->queue(array(
+      'component' => 'cms',
+      'min_version' => '3.0'
+      ), function($version){
+        
+        tx('Component')->helpers('cms')->_call('ensure_pagetypes', array(
+          array(
+            'name' => 'media',
+            'title' => 'Media component'
+          ),
+          array(
+            'settings_cache' => 'SETTINGS'
+          )
+        ));
+        
+      }
+    ); //END - Queue CMS 3.0+
+    
+  }
   
   //Implement source files capability for images and add files table.
   public function update_to_2_0($current_version, $forced)
