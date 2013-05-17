@@ -59,16 +59,16 @@ class Images extends \dependencies\BaseModel
     //Extract raw values.
     raw($filters, $options);
     
-    //Downloading original has an exception, because it should not go through .htaccess structure.
+    //Public image?
+    $public = $this->is_public->get('boolean');
+    
+    //Downloading original has an exception, because it could be a file.
     if(empty($filters) && isset($options['download']) && $options['download'] === true){
       
       //In the case of downloading the original, it's possible a source file is defined.
       //Use that instead of the image file, unless it's denied by the options.
       if($this->source_file_id->is_set() && !(isset($options['no_source_file']) && $options['no_source_file'] === true))
         return url('?section=media/file&id='.$this->source_file_id.'&download=1', true);
-      
-      //Otherwise, simply download this image's original.
-      return url('?section=media/image&id='.$this->id.'&download=1', true);
       
     }
     
@@ -181,11 +181,10 @@ class Images extends \dependencies\BaseModel
     
     //Add extension and create query string from options.
     $generated_name .= ".$ext";
-    $public = $this->is_public->get('boolean');
     
     //Create versions of the name.
     $url = '/site/components/media/links/images/'.
-      ($public ? 'static' : 'dynamic-'.tx('Session')->id).'-'.$generated_name.
+      ($public ? (isset($options['download']) ? 'download-static' : 'static') : 'dynamic-'.tx('Session')->id).'-'.$generated_name.
       (empty($options) ? '' : '?').implode('&', $options);
       
     $link = PATH_COMPONENTS.DS.'media'.DS.'links'.DS.'images'.DS.

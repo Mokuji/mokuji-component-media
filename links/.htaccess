@@ -2,4 +2,5 @@ Options +FollowSymLinks
 RewriteEngine On
 
 RewriteCond %{DOCUMENT_ROOT}%{REQUEST_URI} !-f
+RewriteRule (image|file)s/download-static-(.*) ../../../../index.php?%{QUERY_STRING}&section=media/link_$1_static&path=$3&download=1 [L,QSA]
 RewriteRule (image|file)s/(static|dynamic)-(.*) ../../../../index.php?%{QUERY_STRING}&section=media/link_$1_$2&path=$3 [L,QSA]
