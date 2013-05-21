@@ -36,25 +36,6 @@ class DBUpdates extends \components\update\classes\BaseDBUpdates
       if(!$forced) throw $ex;
     }
     
-    //Queue self-deployment with CMS component.
-    $this->queue(array(
-      'component' => 'cms',
-      'min_version' => '3.0'
-      ), function($version){
-        
-        tx('Component')->helpers('cms')->_call('ensure_pagetypes', array(
-          array(
-            'name' => 'media',
-            'title' => 'Media component'
-          ),
-          array(
-            'settings_cache' => 'SETTINGS'
-          )
-        ));
-        
-      }
-    ); //END - Queue CMS 3.0+
-    
   }
   
   //Implement source files capability for images and add files table.
