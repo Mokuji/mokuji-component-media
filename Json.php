@@ -19,6 +19,8 @@ class Json extends \dependencies\BaseComponent
   public function get_generate_url($data, $params)
   {
     
+    #TODO: This needs tight authorization, since generate_url grants authorization.
+    
     return array(
       'url' => $this->table('Images')
         ->pk($params[0])
