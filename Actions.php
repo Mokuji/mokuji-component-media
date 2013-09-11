@@ -7,6 +7,7 @@ class Actions extends \dependencies\BaseComponent
     $default_permission = 2,
     $permissions = array(
       //This needs to be edited, but image permissions should be checked first.
+      'upload_image' => 0
     );
   
   protected function upload_image()
