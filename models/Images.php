@@ -183,7 +183,7 @@ class Images extends \dependencies\BaseModel
     $generated_name .= ".$ext";
     
     //Create versions of the name.
-    $url = '/site/components/media/links/images/'.
+    $url = URL_COMPONENTS.'media/links/images/'.
       ($public ? (isset($options['download']) ? 'download-static' : 'static') : 'dynamic-'.tx('Session')->id).'-'.$generated_name.
       (empty($options) ? '' : '?').implode('&', $options);
       

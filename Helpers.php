@@ -80,20 +80,6 @@ class Helpers extends \dependencies\BaseViews
       
     }
     
-    //See if we should create a public symlink to the file.
-    if($options->create_static_symlink->is_true()){
-      
-      $target = PATH_COMPONENTS.DS.'media'.DS.'uploads'.DS.'images'.DS.$p;
-      $link = PATH_COMPONENTS.DS.'media'.DS.'links'.DS.'images'.DS.'static-'.$p;
-      
-      //Ensure the folder for the link and the symlink itself are present.
-      @mkdir(dirname($link), 0777, true);
-      if(!@symlink($target, $link)){
-        tx('Logging')->log('Media', 'Static symlink', 'Creation failed for: '.$target.' -> '.$path);
-      }
-      
-    }
-    
     //Since we will output an image. Switch to read-only mode for the session to prevent bottlenecks.
     tx('Session')->close();
     
@@ -109,6 +95,20 @@ class Helpers extends \dependencies\BaseViews
     
     if(!$crop->is_false())
       $image->crop($crop->{0}, $crop->{1}, $crop->{2}, $crop->{3});
+    
+    //See if we should create a public symlink to the file.
+    if($options->create_static_symlink->is_true() && $image->has_diverted() === false){
+      
+      $target = PATH_COMPONENTS.DS.'media'.DS.'uploads'.DS.'images'.DS.$p;
+      $link = PATH_COMPONENTS.DS.'media'.DS.'links'.DS.'images'.DS.'static-'.$p;
+      
+      //Ensure the folder for the link and the symlink itself are present.
+      @mkdir(dirname($link), 0777, true);
+      if(!@symlink($target, $link)){
+        tx('Logging')->log('Media', 'Static symlink', 'Creation failed for: '.$target.' -> '.$path);
+      }
+      
+    }
     
     set_exception_handler('exception_handler_image');
     if(tx('Data')->get->download->is_set())
