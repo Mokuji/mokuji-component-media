@@ -33,14 +33,14 @@ class Helpers extends \dependencies\BaseViews
       $crop = Data(array());
       
       //Parse the name for resize parameters.
-      $filename = preg_replace_callback('~_resize-(?<width>\d+)-(?<height>\d+)~', function($result)use(&$resize){
+      $filename = preg_replace_callback('~_resize-(?P<width>\d+)-(?P<height>\d+)~', function($result)use(&$resize){
         $resize->{0} = $result['width'];
         $resize->{1} = $result['height'];
         return '';
       }, $filename);
       
       //Parse the name for crop parameters.
-      $filename = preg_replace_callback('~_crop-(?<x>\d+)-(?<y>\d+)-(?<width>\d+)-(?<height>\d+)~', function($result)use(&$crop){
+      $filename = preg_replace_callback('~_crop-(?P<x>\d+)-(?P<y>\d+)-(?P<width>\d+)-(?P<height>\d+)~', function($result)use(&$crop){
         $crop->{0} = $result['x'];
         $crop->{1} = $result['y'];
         $crop->{2} = $result['width'];
