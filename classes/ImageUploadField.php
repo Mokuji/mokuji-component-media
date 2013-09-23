@@ -25,7 +25,7 @@ class ImageUploadField extends BaseFormField
     $image = $this->insert_value ? tx('Sql')->table('media', 'Images')->pk($value)->execute_single() : Data();
     $has_image = $image->id->is_set();
     $filters = isset($options['image_preview_filters'][$this->column_name]) && is_array($options['image_preview_filters'][$this->column_name]) ?
-      $options['image_preview_filters'][$this->column_name] : array('resize_width'=>250);
+      $options['image_preview_filters'][$this->column_name] : array('resize_width'=>256);
     
     ?>
     <div id="<?php echo $field_id; ?>" class="ctrlHolder image-upload-field for_<?php echo $this->column_name; ?>">
