@@ -190,6 +190,8 @@ class Images extends \dependencies\BaseModel
     $link = PATH_COMPONENTS.DS.'media'.DS.'links'.DS.'images'.DS.
       ($public ? 'static' : 'dynamic-'.tx('Session')->id).'-'.$generated_name;
     
+    mk('Logging')->log('Media', 'Granting'.($public ? ' public' : '').' permission', $generated_name);
+    
     if(!$public){
       tx('Data')->session->media->image_access->{$generated_name}->set(tx('Session')->id);
     }elseif($public && !is_link($link)){

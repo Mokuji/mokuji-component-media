@@ -102,10 +102,15 @@ class Helpers extends \dependencies\BaseViews
       $target = PATH_COMPONENTS.DS.'media'.DS.'uploads'.DS.'images'.DS.$p;
       $link = PATH_COMPONENTS.DS.'media'.DS.'links'.DS.'images'.DS.'static-'.$p;
       
-      //Ensure the folder for the link and the symlink itself are present.
-      @mkdir(dirname($link), 0777, true);
-      if(!@symlink($target, $link)){
-        tx('Logging')->log('Media', 'Static symlink', 'Creation failed for: '.$target.' -> '.$path);
+      //Check the link isn't already there.
+      if(!is_link($link)){
+        
+        //Ensure the folder for the link and the symlink itself are present.
+        @mkdir(dirname($link), 0777, true);
+        if(!@symlink($target, $link)){
+          tx('Logging')->log('Media', 'Static symlink', 'Creation failed for: '.$target.' -> '.$link);
+        }
+        
       }
       
     }
