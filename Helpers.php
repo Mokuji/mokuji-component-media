@@ -99,7 +99,11 @@ class Helpers extends \dependencies\BaseViews
     //See if we should create a public symlink to the file.
     if($options->create_static_symlink->is_true() && $image->has_diverted() === false){
       
-      $target = PATH_COMPONENTS.DS.'media'.DS.'uploads'.DS.'images'.DS.$p;
+      
+      $subfolders = explode(DS, $p);
+      $subfolder_count = count($subfolders) -1;
+      
+      $target = str_repeat('..'.DS, $subfolder_count).'..'.DS.'..'.DS.'uploads'.DS.'images'.DS.$p;
       $link = PATH_COMPONENTS.DS.'media'.DS.'links'.DS.'images'.DS.'static-'.$p;
       
       //Check the link isn't already there.
