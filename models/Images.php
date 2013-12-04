@@ -59,6 +59,10 @@ class Images extends \dependencies\BaseModel
     //Extract raw values.
     raw($filters, $options);
     
+    //Ensure we have an array here.
+    if($filters === null)
+      $filters = array();
+    
     //Public image?
     $public = $this->is_public->get('boolean');
     

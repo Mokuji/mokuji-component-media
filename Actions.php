@@ -7,6 +7,8 @@ class Actions extends \dependencies\BaseComponent
     $default_permission = 2,
     $permissions = array(
       //This needs to be edited, but image permissions should be checked first.
+      'upload_image' => 1,
+      'upload_file' => 1
     );
   
   protected function upload_image()
@@ -172,11 +174,23 @@ class Actions extends \dependencies\BaseComponent
       // $filesize = filesize(tx('Data')->files->file->tmp_name);
       
       //Create unique file name
+      $attempts=0;
       do{
         $target_filename = tx('Security')->random_string(64).'.'.$extension;
+        $attempts++;
+        if($attempts == 20)
+          mk('Logging')->log('Media', 'Image upload', 'Warning: over 20 attempts to find a unique filename.');
+        elseif($attempts == 40)
+          mk('Logging')->log('Media', 'Image upload', 'Warning: over 40 attempts to find a unique filename.');
+        elseif($attempts >= 60){
+          mk('Logging')->log('Media', 'Image upload', 'ERROR: over 60 attempts to find a unique filename. Aborting.');
+          die('{"jsonrpc" : "2.0", "error" : {"code": 103, "message": "Failed to find suitable target name when moving uploaded file."}, "id" : null}');
+        }
       }
       while(file_exists($target_dir.$target_filename));
-
+      
+      mk('Logging')->log('Media', 'Image upload', 'Found unique filename in '.$attempts.' attempts.');
+      
       //Move the file to target directory
       if(!rename($tmp_dir.DS.$filename, $target_dir.$target_filename))
       {
@@ -435,11 +449,23 @@ class Actions extends \dependencies\BaseComponent
     {
 
       //Create unique file name
+      $attempts=0;
       do{
         $target_filename = tx('Security')->random_string(64).'.'.$extension;
+        $attempts++;
+        if($attempts == 20)
+          mk('Logging')->log('Media', 'File upload', 'Warning: over 20 attempts to find a unique filename.');
+        elseif($attempts == 40)
+          mk('Logging')->log('Media', 'File upload', 'Warning: over 40 attempts to find a unique filename.');
+        elseif($attempts >= 60){
+          mk('Logging')->log('Media', 'File upload', 'ERROR: over 60 attempts to find a unique filename. Aborting.');
+          die('{"jsonrpc" : "2.0", "error" : {"code": 103, "message": "Failed to find suitable target name when moving uploaded file."}, "id" : null}');
+        }
       }
       while(file_exists($target_dir.$target_filename));
-
+      
+      mk('Logging')->log('Media', 'File upload', 'Found unique filename in '.$attempts.' attempts.');
+      
       //Move the file to target directory
       if(!rename($tmp_dir.DS.$filename, $target_dir.$target_filename))
       {
