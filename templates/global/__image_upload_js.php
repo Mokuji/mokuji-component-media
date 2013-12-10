@@ -151,7 +151,7 @@
     $this.append($view);
 
     //Create plupload instance.
-    var ie_version = ($.browser.msie ? parseInt($.browser.version, 10) : false);
+    var ie_version = ($.browser && $.browser.msie ? parseInt($.browser.version, 10) : false);
     var uploader = new plupload.Uploader({
       
       //Fixed settings.

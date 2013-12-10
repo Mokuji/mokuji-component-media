@@ -1,7 +1,7 @@
 Options +FollowSymLinks
 RewriteEngine On
 
-RewriteRule (image|file)s/download-static-(.*) ../../../../index.php?section=media/link_$1_static&path=$3&download=1 [L,QSA]
+RewriteRule (image|file)s/download-static-(.*) ../../../../index.php?section=media/link_$1_static&path=$2&download=1 [L,QSA]
 
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule (image|file)s/(static|dynamic)-(.*) ../../../../index.php?section=media/link_$1_$2&path=$3 [L,QSA]
