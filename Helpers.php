@@ -5,7 +5,8 @@ class Helpers extends \dependencies\BaseViews
   
   protected
     $permissions = array(
-      'output_image' => 0
+      'output_image' => 0,
+      'download_remote_image' => 0
     );
   
   /**
@@ -98,7 +99,6 @@ class Helpers extends \dependencies\BaseViews
     
     //See if we should create a public symlink to the file.
     if($options->create_static_symlink->is_true() && $image->has_diverted() === false){
-      
       
       $subfolders = explode(DS, $p);
       $subfolder_count = count($subfolders) -1;
