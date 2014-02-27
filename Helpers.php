@@ -4,10 +4,7 @@ class Helpers extends \dependencies\BaseViews
 {
   
   protected
-    $permissions = array(
-      'output_image' => 0,
-      'download_remote_image' => 0
-    );
+    $default_permission = 0;
   
   /**
    * Outputs an image based on path input.
@@ -292,10 +289,17 @@ class Helpers extends \dependencies\BaseViews
     fwrite($out, $image['data']);
     fclose($out);
     
+    $info = tx('File')->image()->from_file($target_dir.$filename.$extension);
+    
     //Store image in database and return that.
     return $this->model('Images')
-      ->filename->set($filename.$extension)->back()
-      ->name->set($data->name->otherwise($filename))->back()
+      ->set(array(
+        'filename' => $filename.$extension,
+        'name' => $data->name->otherwise($filename)->get(),
+        'width' => $info->get_width(),
+        'height' => $info->get_height(),
+        'filesize' => $info->get_filesize()
+      ))
       ->save();
     
   }

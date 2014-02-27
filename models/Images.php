@@ -211,8 +211,8 @@ class Images extends \dependencies\BaseModel
   {
     
     //Delete the image links and files.
-    tx('Component')->helpers('media')->_call('delete_image_links', array($this->filename));
-    tx('Component')->helpers('media')->_call('delete_image_file', array($this->filename));
+    tx('Component')->helpers('media')->delete_image_links($this->filename);
+    tx('Component')->helpers('media')->delete_image_file($this->filename);
     
     //Delete the source file if applicable.
     $this->source_file->not('empty', function($source){

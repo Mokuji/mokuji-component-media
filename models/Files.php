@@ -20,7 +20,7 @@ class Files extends \dependencies\BaseModel
   public function get_abs_filename()
   {
     
-    return URL_COMPONENTS.DS.'media'.DS.'uploads'.DS.'files'.DS.$this->filename;
+    return PATH_COMPONENTS.DS.'media'.DS.'uploads'.DS.'files'.DS.$this->filename;
     
   }
   
@@ -28,7 +28,7 @@ class Files extends \dependencies\BaseModel
   {
     
     //Delete the files.
-    tx('Component')->helpers('media')->_call('delete_file', array($this->filename));
+    tx('Component')->helpers('media')->delete_file($this->filename);
     
     return parent::delete();
     
