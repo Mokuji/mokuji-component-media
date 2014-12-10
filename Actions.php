@@ -11,6 +11,24 @@ class Actions extends \dependencies\BaseComponent
       'upload_file' => 0
     );
   
+  protected function reload_image_sizes()
+  {
+    
+    mk('Sql')->table('media', 'Images')
+      ->execute()
+      ->each(function($image){
+        
+        $info = mk('File')->image()->from_file($image->abs_filename->get());
+        $image->merge(array(
+          'width'=>$info->get_width(),
+          'height'=>$info->get_height()
+        ));
+        $image->save();
+        
+      });
+    
+  }
+  
   protected function upload_image()
   {
     
